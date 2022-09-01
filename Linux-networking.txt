@@ -91,8 +91,8 @@ Trouble shooting commands
 #traceroute -I (ICMP) -- by default traceroute use UDP 
 #raceroute -T -t 80 <ip address>
 #tracepath (actually is the same as tracepath but it show the MTU value)
-#netcat
-#ss ( this command is similar to netcat)
+#netstat
+#ss ( this command is similar to netstat)
 <ip address : non privileged port> = socket
 
 
