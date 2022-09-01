@@ -72,6 +72,7 @@ commandes that are usede in this toutorial
 Extra Commands
 # ifup enp0s3 
 # ifdown enp0s3
+# ifconfig
 # nmcli 
 #host
 #hostname
