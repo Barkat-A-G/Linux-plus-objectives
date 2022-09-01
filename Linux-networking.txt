@@ -1,0 +1,107 @@
+
+This project consist of making a simple linux router. My initial thought was that how can I in connect two servers-connect the to the intranet
+network-in Vertual Box.
+
+To demonstrate my thought 
+
+I have 3 debian VMs in VBox. 1 obviously is the router and the other two of them are standard debian servers. 
+
+Vm router = debian
+
+this is the file >>>	/etc/network/interface 
+
+	# standard router interface
+	auto enp0s3  # <---- standard router interface
+	iface enp0s3 inet static
+	address 10.0.10.1/24
+	
+	# standard router interface
+   	auto enp0s4  # <---- standard router interface
+	iface enp0s4 inet static
+	address 10.0.20.1/24
+	
+	# WAN interface
+	auto enp0s1  #  #<----- router's own ip interface that connects to out side network (internet)
+	iface enp0s1 inet static
+	address 192.168.0.100/24
+	gateway 192.168.0.1
+	post-up iptables-restore < /etc/iptalbes_rules.save
+
+
+Vm = server1 
+this is the file >>>	/etc/network/interface 
+	auto enp0s3
+	address 10.0.10.10/24
+	gateway 10.0.10.1 
+
+Vm = server2
+this is the file >>>	/etc/network/interface 
+	auto enp0s3
+	address 10.0.10.10/24
+	gateway 10.0.10.1 
+
+
+
+To make sure that these configuration would take effect to next boot we should change this variable to true (managed=true) in 
+/etc/NetworkManager/NetWorkManager.conf
+
+By default linux machine is disabled to forward packets comming from interfaces. So to enable routing in linux we should uncomment 
+a line of code (net.ipv4.tcp_syncookies=1) in /etc/sysctl.conf. The next step is to make sure that the linux system/kernel should take this changes
+into considération. To make this happen we just type sudo (sysctl -p). Once this is done we type a next command (iptables for more info on iptables
+just type in terminal man iptables) iptables -t nat -A POSTROUTING -o enp0s1 -j MASQUERADE. Now we have configured the linux system as
+a router but these configuration settings will disappear when next boot. So we make a file in /etc folder this the name of the file is up to you
+for convention you could name like this iptables_rules.save (make sure be root in this step) then we StndIn the StndOut of this command 
+(iptalbes-save > /etc/iptables_rules.save). Lastly we change the once more the  /etc/network/interface file to the router's interface section we would
+add this last line (post-up iptables-restore < /etc/iptables_rules.save) this will make sure that to the next boot this linux machine would not lost 
+all the configuration we made. 
+
+Now we need to restart the networking.service. To do this we just simply type (sudo systemctl restart networking.service).
+
+To verify that our setting are working
+
+# nmcli device status <------ this will show that all interfaces are managed by the NetworkManager and ip address of the interfaces
+# iptables -L -t nat <------ this show the iptables configuration (make sure that the Chain POSTROUTING is MASQUERADE --all everywhere)
+						    if this is the case than your iptables configuration is OK.
+
+commandes that are usede in this toutorial
+# ip address add <ip address> dev enp0s3
+# ip link set enp0s3 up | down
+# ip address delete <ip address> dev enp0s3
+# ip route add default via <ip address> dev enp0s3
+# ip route
+Extra Commands
+# ifup enp0s3 
+# ifdown enp0s3
+# nmcli 
+#host
+#hostname
+#hostnamectl set-static-name server1
+/etc/hostname
+/etc/hosts
+/etc/nsswitch
+/etc/resolve.cfg 
+
+
+Trouble shooting commands
+#ping 
+#ping6
+#traceroute 
+#traceroute6
+#traceroute -I (ICMP) -- by default traceroute use UDP 
+#raceroute -T -t 80 <ip address>
+#tracepath (actually is the same as tracepath but it show the MTU value)
+#netcat
+#ss ( this command is similar to netcat)
+<ip address : non privileged port> = socket
+
+
+Keywords in /etc/network/interface file
+auto enp0s3 means that this interface will be up and managed to next boot.
+iface enp0s3 means interface 
+inet static|DHCP self explanatory
+
+
+
+
+
+
