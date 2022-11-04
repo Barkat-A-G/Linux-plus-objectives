@@ -1,0 +1,1 @@
+dpkg -S /usr/bin/python-pip # find the package name of the installed binary
